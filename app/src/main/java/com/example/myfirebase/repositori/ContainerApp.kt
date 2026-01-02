@@ -5,4 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface RepositorySiswa {
     fun getAllSiswa(): Flow<List<Siswa>>
+    fun getSiswaById(id: Long): Flow<Siswa?>
+
 }
