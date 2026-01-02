@@ -17,7 +17,7 @@ class FirebaseRepositorySiswa : RepositorySiswa {
         return try {
             collection.get().await().documents.map { doc ->
                 Siswa(
-                    id = doc.getLong("id")?.toLong() ?: 0,
+                    id = doc.getLong("id") ?: 0L,
                     nama = doc.getString("nama") ?: "",
                     alamat = doc.getString("alamat") ?: "",
                     telpon = doc.getString("telpon") ?: ""
@@ -30,8 +30,9 @@ class FirebaseRepositorySiswa : RepositorySiswa {
 
     override suspend fun postDataSiswa(siswa: Siswa) {
         val docRef = if (siswa.id == 0L) collection.document() else collection.document(siswa.id.toString())
+
         val data = hashMapOf(
-            "id" to (siswa.id.takeIf { it != 0L } ?: docRef.id.hashCode()),
+            "id" to (if (siswa.id == 0L) docRef.id.hashCode().toLong() else siswa.id),
             "nama" to siswa.nama,
             "alamat" to siswa.alamat,
             "telpon" to siswa.telpon
