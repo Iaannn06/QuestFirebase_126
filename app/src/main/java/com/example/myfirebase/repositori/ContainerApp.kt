@@ -8,4 +8,5 @@ interface RepositorySiswa {
     fun getSiswaById(id: Long): Flow<Siswa?>
     suspend fun insertSiswa(siswa: Siswa)
     suspend fun updateSiswa(id: Long, siswa: Siswa)
+    suspend fun deleteSiswa(id: Long)
 }
