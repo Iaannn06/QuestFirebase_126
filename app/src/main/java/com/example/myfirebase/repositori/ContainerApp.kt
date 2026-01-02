@@ -7,5 +7,5 @@ interface RepositorySiswa {
     fun getAllSiswa(): Flow<List<Siswa>>
     fun getSiswaById(id: Long): Flow<Siswa?>
     suspend fun insertSiswa(siswa: Siswa)
-
+    suspend fun updateSiswa(id: Long, siswa: Siswa)
 }
