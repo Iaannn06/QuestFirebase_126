@@ -1,12 +1,22 @@
 package com.example.myfirebase.repositori
 
-import com.example.myfirebase.modeldata.Siswa
-import kotlinx.coroutines.flow.Flow
+import android.app.Application
 
-interface RepositorySiswa {
-    fun getAllSiswa(): Flow<List<Siswa>>
-    fun getSiswaById(id: Long): Flow<Siswa?>
-    suspend fun insertSiswa(siswa: Siswa)
-    suspend fun updateSiswa(id: Long, siswa: Siswa)
-    suspend fun deleteSiswa(id: Long)
+interface ContainerApp {
+    val repositorySiswa: RepositorySiswa
+}
+
+class DefaultContainerApp : ContainerApp {
+    override val repositorySiswa: RepositorySiswa by lazy {
+        FirebaseRepositorySiswa()
+    }
+}
+
+class AplikasiDataSiswa : Application() {
+    lateinit var container: ContainerApp
+
+    override fun onCreate() {
+        super.onCreate()
+        this.container = DefaultContainerApp()
+    }
 }
