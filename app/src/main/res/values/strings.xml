@@ -17,5 +17,6 @@
     <string name="no">Tidak</string>
     <string name="yes">Ya</string>
     <string name="retry">Retry</string>
+    <string name="gagal">Gagal Loading</string>
 
 </resources>
