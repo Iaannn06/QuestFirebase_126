@@ -45,4 +45,11 @@ RepositorySiswa ) : ViewModel(){
             }
         }
     }
+
+    suspend fun hapusSatuSiswa(){
+        try {
+            repositorySiswa.hapusSatuSiswa(idSiswa)
+            printIn("Sukses Hapus Data: $idSiswa")
+        }
+    }
 }
