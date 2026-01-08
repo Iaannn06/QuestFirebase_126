@@ -67,6 +67,14 @@ fun HostNavigasi(
                     }
                 )
             }
+            composable(
+                route = DestinasiEdit.routeWithArgs,
+                arguments = listOf(navArgument(DestinasiEdit.itemIdArg) {
+                    type = NavType.StringType
+                })
+            ){
+
+            }
         }
     }
 }
