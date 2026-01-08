@@ -10,6 +10,7 @@ import com.example.myfirebase.repositori.RepositorySiswa
 import com.example.myfirebase.view.route.DestinasiDetail
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import java.io.IOException
 
 sealed interface StatusUIDetail {
     data class Success(val siswa: Siswa) : StatusUIDetail
@@ -36,7 +37,12 @@ RepositorySiswa ) : ViewModel(){
             statusUIDetail = try {
                 statusUIDetail.Success(satusiswa = repositorySiswa.getSatuSiswa(idSiswa) )
             }
-
+            catch (e: IOException) {
+                StatusUIDetail.Error
+            }
+            catch(e: Exception) {
+                statusUIDetail.Error
+            }
         }
     }
 }
