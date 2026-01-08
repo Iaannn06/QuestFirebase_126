@@ -47,6 +47,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                //edit 1.2 event onClick
                 onClick = navigateToItemEntry,
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
@@ -56,13 +57,13 @@ fun HomeScreen(
                     contentDescription = stringResource(R.string.entry_siswa)
                 )
             }
-        },
+        }
     ) { innerPadding ->
         HomeBody(
             statusUiSiswa = viewModel.statusUiSiswa,
             onSiswaClick = navigateToItemUpdate,
             retryAction = viewModel::loadSiswa,
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         )
@@ -80,18 +81,14 @@ fun HomeBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        // --- Bagian dari gambar cuplikan (Logika When) ---
         when (statusUiSiswa) {
             is StatusUiSiswa.Loading -> LoadingScreen()
-
-            //edit 2.5 : tambahkan event onSiswaClick
             is StatusUiSiswa.Success -> DaftarSiswa(
                 itemSiswa = statusUiSiswa.siswa,
                 onSiswaClick = { onSiswaClick(it.id.toInt()) }
             )
-
             is StatusUiSiswa.Error -> ErrorScreen(
-                retryAction,
+                retryAction = retryAction,
                 modifier = modifier.fillMaxSize()
             )
         }
@@ -108,18 +105,17 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun ErrorScreen(
+    retryAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_connection_error),
-            contentDescription = ""
-        )
         Text(
-            text = stringResource(R.string.loading_failed),
+            text = stringResource(R.string.gagal),
             modifier = Modifier.padding(16.dp)
         )
         Button(onClick = retryAction) {
@@ -131,15 +127,17 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun DaftarSiswa(
     itemSiswa: List<Siswa>,
+    //edit 2.1 tambahkan parameter onSiswaClick
     onSiswaClick: (Siswa) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
         items(items = itemSiswa, key = { it.id }) { person ->
-            SiswaItem(
+            ItemSiswa(
                 siswa = person,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
+                    //edit 2.2 jadikan itemSiswa menjadi clickable()
                     .clickable { onSiswaClick(person) }
             )
         }
@@ -147,7 +145,7 @@ fun DaftarSiswa(
 }
 
 @Composable
-fun SiswaItem(
+fun ItemSiswa(
     siswa: Siswa,
     modifier: Modifier = Modifier
 ) {
@@ -157,19 +155,21 @@ fun SiswaItem(
     ) {
         Column(
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
+            verticalArrangement = Arrangement.spacedBy(
+                dimensionResource(id = R.dimen.padding_small)
+            )
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = siswa.nama,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.Phone,
-                    contentDescription = null,
+                    contentDescription = null
                 )
                 Text(
                     text = siswa.telpon,
