@@ -30,11 +30,11 @@ import com.example.myfirebase.viewmodel.StatusUiSiswa
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    onItemClick: (Int) -> Unit,
+    navigateToItemUpdate: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -60,7 +60,8 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             statusUiSiswa = viewModel.statusUiSiswa,
-            onItemClick = onItemClick,
+            onSiswaClick = navigateToItemUpdate,
+            retryAction = viewModel::loadSiswa,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -75,33 +76,30 @@ fun HomeBody(
     retryAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (statusUiSiswa) {
-        is StatusUiSiswa.Loading -> OnLoading(modifier = modifier.fillMaxSize())
-        is StatusUiSiswa.Success -> {
-            if (statusUiSiswa.siswa.isEmpty()) {
-                Box(
-                    modifier = modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_item_description),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            } else {
-                DaftarSiswa(
-                    siswa = statusUiSiswa.siswa,
-                    onItemClick = { onItemClick(it.id) },
-                    modifier = modifier.fillMaxSize()
-                )
-            }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        // --- Bagian dari gambar cuplikan (Logika When) ---
+        when (statusUiSiswa) {
+            is StatusUiSiswa.Loading -> LoadingScreen()
+
+            //edit 2.5 : tambahkan event onSiswaClick
+            is StatusUiSiswa.Success -> DaftarSiswa(
+                itemSiswa = statusUiSiswa.siswa,
+                onSiswaClick = { onSiswaClick(it.id.toInt()) }
+            )
+
+            is StatusUiSiswa.Error -> ErrorScreen(
+                retryAction,
+                modifier = modifier.fillMaxSize()
+            )
         }
-        is StatusUiSiswa.Error -> OnError(modifier = modifier.fillMaxSize())
     }
 }
 
 @Composable
-fun OnLoading(modifier: Modifier = Modifier) {
+fun LoadingScreen(modifier: Modifier = Modifier) {
     Image(
         modifier = modifier.size(200.dp),
         painter = painterResource(R.drawable.loading_img),
@@ -110,7 +108,7 @@ fun OnLoading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun OnError(modifier: Modifier = Modifier) {
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -124,22 +122,25 @@ fun OnError(modifier: Modifier = Modifier) {
             text = stringResource(R.string.loading_failed),
             modifier = Modifier.padding(16.dp)
         )
+        Button(onClick = retryAction) {
+            Text(stringResource(R.string.retry))
+        }
     }
 }
 
 @Composable
 fun DaftarSiswa(
-    siswa: List<Siswa>,
-    onItemClick: (Siswa) -> Unit,
+    itemSiswa: List<Siswa>,
+    onSiswaClick: (Siswa) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(items = siswa, key = { it.id }) { person ->
+        items(items = itemSiswa, key = { it.id }) { person ->
             SiswaItem(
                 siswa = person,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
-                    .clickable { onItemClick(person) }
+                    .clickable { onSiswaClick(person) }
             )
         }
     }
