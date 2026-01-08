@@ -10,7 +10,6 @@ interface RepositorySiswa {
     suspend fun getSatuSiswa(id: Long): Siswa?
     suspend fun editSatuSiswa(id: Long, siswa: Siswa)
     suspend fun hapusSatuSiswa(id: Long)
-
 }
 
 class FirebaseRepositorySiswa : RepositorySiswa {
@@ -33,7 +32,8 @@ class FirebaseRepositorySiswa : RepositorySiswa {
     }
 
     override suspend fun postDataSiswa(siswa: Siswa) {
-        val docRef = if (siswa.id == 0L) collection.document() else collection.document(siswa.id.toString())
+        val docRef =
+            if (siswa.id == 0L) collection.document() else collection.document(siswa.id.toString())
 
         val data = hashMapOf(
             "id" to (if (siswa.id == 0L) docRef.id.hashCode().toLong() else siswa.id),
@@ -41,3 +41,21 @@ class FirebaseRepositorySiswa : RepositorySiswa {
             "alamat" to siswa.alamat,
             "telpon" to siswa.telpon
         )
+    }
+
+        override suspend fun getSatuSiswa(id: Long): Siswa? {
+            return try {
+                val query = collection.whereEqualTo("id", id).get().await()
+                val doc = query.documents.firstOrNull()
+                doc?.let {
+                    Siswa(
+                        id = it.getLong("id") ?: 0L,
+                        nama = it.getString("nama") ?: "",
+                        alamat = it.getString("alamat") ?: "",
+                        telpon = it.getString("telpon") ?: ""
+                    )
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
