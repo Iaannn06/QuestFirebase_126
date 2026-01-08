@@ -50,6 +50,8 @@ RepositorySiswa ) : ViewModel(){
         try {
             repositorySiswa.hapusSatuSiswa(idSiswa)
             printIn("Sukses Hapus Data: $idSiswa")
+        } catch (e: Exception) {
+            printIn("Gagal Hapus Data: $e.message")
         }
     }
 }
