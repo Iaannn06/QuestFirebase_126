@@ -4,9 +4,11 @@ package com.example.myfirebase.view.controllNavigasi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.myfirebase.view.route.DestinasiDetail
 import com.example.myfirebase.view.EntrySiswaScreen
 import com.example.myfirebase.view.HomeScreen
@@ -48,6 +50,15 @@ fun HostNavigasi(
                     navController.navigate(DestinasiHome.route)
                 }
             )
+
+            composable(
+                route = DestinasiDetail.routeWithArgs,
+                arguments = listOf(navArgument(DestinasiDetail.itemIdArg) {
+                    type = NavType.StringType
+                })
+            ){
+
+            }
         }
     }
 }
