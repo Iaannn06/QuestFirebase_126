@@ -30,11 +30,11 @@ import com.example.myfirebase.viewmodel.StatusUiSiswa
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
+    onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -60,8 +60,7 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             statusUiSiswa = viewModel.statusUiSiswa,
-            onSiswaClick = navigateToItemUpdate,
-            retryAction = viewModel::loadSiswa,
+            onItemClick = onItemClick,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -72,32 +71,36 @@ fun HomeScreen(
 @Composable
 fun HomeBody(
     statusUiSiswa: StatusUiSiswa,
-    onSiswaClick: (Int) -> Unit,
-    retryAction: () -> Unit,
+    onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        when (statusUiSiswa) {
-            is StatusUiSiswa.Loading -> LoadingScreen()
-            is StatusUiSiswa.Success -> {
+    when (statusUiSiswa) {
+        is StatusUiSiswa.Loading -> OnLoading(modifier = modifier.fillMaxSize())
+        is StatusUiSiswa.Success -> {
+            if (statusUiSiswa.siswa.isEmpty()) {
+                Box(
+                    modifier = modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_item_description),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            } else {
                 DaftarSiswa(
-                    itemSiswa = statusUiSiswa.siswa,
-                    onSiswaClick = { onSiswaClick(it.id.toInt()) }
+                    siswa = statusUiSiswa.siswa,
+                    onItemClick = { onItemClick(it.id) },
+                    modifier = modifier.fillMaxSize()
                 )
             }
-            is StatusUiSiswa.Error -> ErrorScreen(
-                retryAction = retryAction,
-                modifier = Modifier.fillMaxSize()
-            )
         }
+        is StatusUiSiswa.Error -> OnError(modifier = modifier.fillMaxSize())
     }
 }
 
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
+fun OnLoading(modifier: Modifier = Modifier) {
     Image(
         modifier = modifier.size(200.dp),
         painter = painterResource(R.drawable.loading_img),
@@ -106,42 +109,43 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun OnError(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_connection_error),
+            contentDescription = ""
+        )
         Text(
-            text = stringResource(R.string.gagal),
+            text = stringResource(R.string.loading_failed),
             modifier = Modifier.padding(16.dp)
         )
-        Button(onClick = retryAction) {
-            Text(stringResource(R.string.retry))
-        }
     }
 }
 
 @Composable
 fun DaftarSiswa(
-    itemSiswa: List<Siswa>,
-    onSiswaClick: (Siswa) -> Unit,
+    siswa: List<Siswa>,
+    onItemClick: (Siswa) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(itemSiswa, key = { it.id }) { person ->
-            ItemSiswa(
+        items(items = siswa, key = { it.id }) { person ->
+            SiswaItem(
                 siswa = person,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
-                    .clickable { onSiswaClick(person) }
+                    .clickable { onItemClick(person) }
             )
         }
     }
 }
 
 @Composable
-fun ItemSiswa(
+fun SiswaItem(
     siswa: Siswa,
     modifier: Modifier = Modifier
 ) {
@@ -153,15 +157,17 @@ fun ItemSiswa(
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = siswa.nama,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.Phone,
-                    contentDescription = null
+                    contentDescription = null,
                 )
                 Text(
                     text = siswa.telpon,
