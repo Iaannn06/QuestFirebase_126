@@ -71,7 +71,8 @@ fun HomeScreen(
 @Composable
 fun HomeBody(
     statusUiSiswa: StatusUiSiswa,
-    onItemClick: (Int) -> Unit,
+    onSiswaClick: (Int) -> Unit,
+    retryAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (statusUiSiswa) {
